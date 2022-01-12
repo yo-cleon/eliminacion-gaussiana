@@ -2,9 +2,10 @@
 # el número más grande de cada fila. De esta forma se eligen números cuyo factor de escalado minimiza los errores de
 # redondeo en el cálculo de los sistemas de ecuaciones equivalentes.
 
+# Función para mostrar subíndices
 subscript = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
 
-# Función para solicitar al usuario la intruducción de los elementos de la matriz
+# Función para solicitar al usuario la introducción de los elementos de la matriz
 def recoger_matriz():
     rows, cols = (4, 4)
     matriz = []
@@ -29,36 +30,44 @@ def imprimir_matriz(matriz):
             print("\b\b\t\t\t", end=" ")
         print()
 
-# Función para buscar los pivotes de cada línea
+# Función para buscar los pivotes de cada línea: antes de empezar cada etapa i, se realizará
+# una búsqueda entre los elementos de la columna y se escogerá aquel de mayor valor absoluto,
+# intercambiando a continuación las filas que determinan ese elemento y la i.
 def pivoteo_matriz(mtrz, i):
     pivote = '%.2f' % 0
+    aux = ''
     for l in mtrz[i:4]:
         if abs(float(l[i])) > abs(float(pivote)):
             pivote = l[i]
             aux = l
+    # Si el pivote de una columna es igual a 0, puede generar errores,
+    # ya que se origina una división entre cero
     if pivote == '0.00':
         print("La matriz no tiene solución")
         exit(0)
     elemento = "a" + str(i+1) + str(i+1)
-    print(" Elemento  " + elemento.translate(subscript) + ", el pivote de la columna " + str(i+1) + " es " + ('%.2f' % float(pivote)).rstrip('0').rstrip('.'))
+    print(" Elemento  " + elemento.translate(subscript) + ", el pivote de la columna " + str(i+1) + " es " +
+          ('%.2f' % float(pivote)).rstrip('0').rstrip('.'))
     mtrz.remove(aux)
     mtrz.insert(i, aux)
     return(mtrz)
 
-# Reducción a cero de los elementos inferiores al pivote
+# Reducción a cero de los elementos inferiores al pivote: Una vez realizada la permutación de las filas,
+# se anulan los valores por debajo del pivote, multiplicando la fila de pivote por una cierta constante
+# y agregándola a una fila debajo del pivote. En este caso, realizamos la siguiente operación:
+# Fn+1 = Fn+1 - aji/aii * Fn
 def reduccion_a_cero(matriz, i):
     for j in range(i+1,4):
-        # Se anulan los valores por debajo del pivote aplicando la siguiente fórmula
-        # Fn+1 = Fn+1 - aji/aii * Fn
         pivote = matriz[i][i]
-        aux = float(matriz[j][i]) / float(pivote)
+        constante = float(matriz[j][i]) / float(pivote)
         for k in range (i,4):
-            matriz[j][k] = float(matriz[j][k]) - (aux * float(matriz[i][k]))
+            matriz[j][k] = float(matriz[j][k]) - (constante * float(matriz[i][k]))
     return(matriz)
 
-# Función principal.
+# Función principal de la aplicación.
 if __name__ == '__main__':
     matriz = recoger_matriz()
+    print()
     print("La matriz INICIAL es la siguiente:")
     imprimir_matriz(matriz)
     print()
